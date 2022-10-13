@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+.config {
+  background-color: grey;
+  width: 50%;
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid darkgrey;
+}
+.messages {
+  width: 50%;
+  border: 1px solid blue;
+  padding: 10px;
+  text-align: left;
+  font-size: 14px;
+}
