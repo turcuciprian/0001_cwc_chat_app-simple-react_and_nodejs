@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 const socket = io("http://localhost:3001");
 
 function App() {
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [isConnected, setIsConnected] = useState(false);
   const [username, setUserName] = useState("");
   const [showConfig, setShowConfig] = useState(true);
   const [messages, setMessages] = useState([]); // example: [{user: 'some user',message:'bslah blah'},{user: 'some user',message:'blah blah'}]
@@ -26,12 +26,12 @@ function App() {
       socket.off("disconnect");
       socket.off("message");
     };
-  }, [messages]);
+  }, [messages, setIsConnected]);
   const saveUser = useCallback(() => {
     setShowConfig(false);
   }, []);
   const sendMessage = useCallback(() => {
-    const newMessage = { user: username, message: lastMessage };
+    const newMessage = { user: username || 'unknown user', message: lastMessage };
     socket.emit("message", newMessage);
     setMessages([...messages, newMessage]);
     setLastMessage("");
@@ -39,13 +39,23 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {isConnected ? <p>Connected</p> : null}
+        {isConnected ?
+          <div className="connection-information">
+            <b>User</b>: {username} <span>Connected</span>{!showConfig ? (
+              <button
+              onClick={()=>{
+                setShowConfig(true);
+              }}
+              >Config</button>
+            ) : null} </div> : null}
 
         {/* Config JSX */}
         {showConfig ? (
           <div className="config">
+            <h2>Settings</h2>
             User Name <br />
             <input
+              autoFocus
               type={"text"}
               value={username}
               onChange={(e) => {
@@ -64,7 +74,7 @@ function App() {
           <>
             <div className="messages">
               {messages.map((item, index) => {
-                return item.user ? (
+                return item ? (
                   <p key={`message${index}`}>
                     <b>{item.user}:</b> {item.message}
                   </p>
@@ -72,7 +82,8 @@ function App() {
               })}
             </div>
             <div className="messageWrapper">
-              <input
+              Message: <input
+                autoFocus
                 value={lastMessage}
                 onChange={(e) => setLastMessage(e.target.value)}
                 onKeyDown={(e) => {
